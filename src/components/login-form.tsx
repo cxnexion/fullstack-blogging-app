@@ -1,28 +1,92 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Link } from '@tanstack/react-router'
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Link, redirect } from '@tanstack/react-router'
+import { useState } from 'react'
+import { useForm } from '@tanstack/react-form-start'
+import z from 'zod'
+import { Spinner } from '@/components/ui/spinner.tsx'
+import { authClient } from '@/lib/auth-client.ts'
+
+const loginSchema = z.object({
+  email: z.email(),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(32, 'Password must be at most 32 characters'),
+})
 
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<'div'>) {
+  const [formState, setFormState] = useState<
+    'default' | 'loading' | 'error' | 'success'
+  >('default')
+
+  const [formError, setFormError] = useState<null | string>(null)
+
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: loginSchema,
+    },
+    onSubmit: async ({ value }) => {
+      loginHandler(value)
+    },
+  })
+
+  function loginHandler({
+    email,
+    password,
+  }: {
+    email: string
+    password: string
+  }) {
+
+    authClient.signIn.email(
+      {
+        email, // user email address
+        password, // user password -> min 8 characters by default
+      },
+      {
+        onRequest: () => {
+          setFormState('loading')
+        },
+        onSuccess: () => {
+          setFormError(null)
+          setFormState('success')
+          throw redirect({ to: '/' })
+        },
+        onError: (ctx) => {
+          setFormState('error')
+          setFormError(ctx.error.message)
+        },
+      },
+    )
+    console.log(email, password)
+  }
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
@@ -31,7 +95,12 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit(e)
+            }}
+          >
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -56,31 +125,78 @@ export function LoginForm({
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
               </FieldSeparator>
+              <form.Field
+                name="email"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field>
+                      <FieldLabel htmlFor="email">Email</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        onBlur={field.handleBlur}
+                        placeholder="m@example.com"
+                        required
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
+              />
+
+              <form.Field
+                name="password"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field>
+                      <div className="flex items-center">
+                        <FieldLabel htmlFor="password">Password</FieldLabel>
+                        <a
+                          href="#"
+                          className="ml-auto text-sm underline-offset-4 hover:underline"
+                        >
+                          Forgot your password?
+                        </a>
+                      </div>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
+              />
+
+              {formError && <FieldError>{formError}</FieldError>}
+              {formState === 'success' && (
+                <span className="text-primary font-semibold">
+                  Successfully logged in!
+                </span>
+              )}
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit">
+                  {formState === 'loading' ? <Spinner /> : 'Log In'}
+                </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/auth/register">Sign up</Link>
+                  Don&apos;t have an account?{' '}
+                  <Link to="/auth/register">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -88,7 +204,7 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>

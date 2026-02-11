@@ -1,19 +1,7 @@
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '@/components/ui/card'
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Link, redirect } from '@tanstack/react-router'
 import z from 'zod'
@@ -48,6 +36,8 @@ export function SignupForm({
     'default' | 'loading' | 'error' | 'success'
   >('default')
 
+    const [formError, setFormError] = useState<null | string>(null)
+
   const form = useForm({
     defaultValues: {
       name: '',
@@ -72,7 +62,6 @@ export function SignupForm({
     email: string
     password: string
   }) {
-    try{
       authClient.signUp.email(
         {
           email, // user email address
@@ -85,19 +74,18 @@ export function SignupForm({
             setFormState('loading')
           },
           onSuccess: () => {
+            setFormError(null);
             setFormState('success')
             throw redirect({ to: '/' })
           },
           onError: (ctx) => {
-            throw new Error(ctx.toString())
+              setFormState('error');
+              setFormError(ctx.error.message);
+
           },
         },
       )
     }
-    catch (e) {
-      setFormState('error');
-    }
-  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -230,8 +218,16 @@ export function SignupForm({
                   Must be at least 8 characters long.
                 </FieldDescription>
               </Field>
+              {formError && <FieldError>{formError}</FieldError>}
+              {formState === 'success' && (
+                <span className="text-primary font-semibold">
+                  Successfully Registered!
+                </span>
+              )}
               <Field>
-                <Button type="submit" disabled={formState === 'loading'}>{formState === 'loading' ? <Spinner/> : 'Create Account'}</Button>
+                <Button type="submit" disabled={formState === 'loading'}>
+                  {formState === 'loading' ? <Spinner /> : 'Create Account'}
+                </Button>
                 <FieldDescription className="text-center">
                   Already have an account? <Link to="/auth/login">Sign in</Link>
                 </FieldDescription>
