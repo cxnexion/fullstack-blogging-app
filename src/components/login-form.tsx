@@ -193,7 +193,7 @@ export function LoginForm({
                 </span>
               )}
               <Field>
-                <Button type="submit">
+                <Button type="submit" disabled={formState === 'loading'}>
                   {formState === 'loading' ? <Spinner /> : 'Log In'}
                 </Button>
                 <FieldDescription className="text-center">
