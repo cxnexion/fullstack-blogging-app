@@ -74,7 +74,7 @@ export function LoginForm({
         onSuccess: () => {
           setFormError(null)
           setFormState('success')
-          throw redirect({ to: '/' })
+          throw redirect({ to: '/profile' })
         },
         onError: (ctx) => {
           setFormState('error')

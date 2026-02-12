@@ -6,9 +6,7 @@ import {Search} from "lucide-react";
 
 
 
-const Header = () => {
-
-
+const Header = async () => {
 
     return (
         <header className="flex items-center justify-between p-2 border-b sticky top-0">

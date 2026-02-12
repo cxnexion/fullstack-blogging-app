@@ -76,7 +76,7 @@ export function SignupForm({
           onSuccess: () => {
             setFormError(null);
             setFormState('success')
-            throw redirect({ to: '/' })
+            throw redirect({ to: '/profile' })
           },
           onError: (ctx) => {
               setFormState('error');
