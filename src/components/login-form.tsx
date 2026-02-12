@@ -82,7 +82,6 @@ export function LoginForm({
         },
       },
     )
-    console.log(email, password)
   }
 
   return (
