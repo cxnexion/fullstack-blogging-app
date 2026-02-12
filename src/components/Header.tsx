@@ -5,11 +5,10 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group.tsx'
 import ModeToggle from '@/components/ModeToggle.tsx'
-import { Link, useRouteContext} from '@tanstack/react-router'
+import { Link} from '@tanstack/react-router'
 import { Search } from 'lucide-react'
 
 const Header = () => {
-const {session} = useRouteContext({from:'__root__'})
 
     return (
       <header className="flex items-center justify-between p-2 border-b sticky top-0">
@@ -52,15 +51,9 @@ const {session} = useRouteContext({from:'__root__'})
             </InputGroupAddon>
           </InputGroup>
           <ModeToggle />
-          {!session?.user ?
-            <Link to="/auth/register">
-              <Button>Sign Up</Button>
-            </Link>
-              :
-              <Link to="/profile">
-                  <Button>Profile</Button>
-              </Link>
-          }
+          <Link to="/auth/register">
+            <Button>Sign Up</Button>
+          </Link>
         </div>
       </header>
     )

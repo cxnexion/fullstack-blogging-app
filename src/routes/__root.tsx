@@ -7,7 +7,6 @@ import Header from '../components/Header'
 import appCss from '../styles.css?url'
 import Footer from "@/components/Footer.tsx";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import {auth} from "@/lib/auth.ts";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -30,16 +29,6 @@ export const Route = createRootRoute({
       },
     ],
   }),
-  beforeLoad: async () => {
-    // Get session server-side
-    const session = await auth.api.getSession({
-      headers: new Headers(),
-    })
-
-    return {
-      session,
-    }
-  },
   shellComponent: RootDocument,
 })
 
