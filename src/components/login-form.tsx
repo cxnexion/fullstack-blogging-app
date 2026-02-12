@@ -140,6 +140,7 @@ export function LoginForm({
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         onBlur={field.handleBlur}
+                        type="email"
                         placeholder="m@example.com"
                         required
                       />
@@ -174,6 +175,7 @@ export function LoginForm({
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         onBlur={field.handleBlur}
+                        type="password"
                         required
                       />
                       {isInvalid && (
