@@ -1,21 +1,34 @@
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '@/components/ui/card'
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, } from '@/components/ui/field'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Link, redirect } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import z from 'zod'
 import { useForm } from '@tanstack/react-form-start'
 import { authClient } from '@/lib/auth-client.ts'
 import { useState } from 'react'
 import { Spinner } from '@/components/ui/spinner.tsx'
+import { FormState } from '@/types/formState.ts'
 
 const registerSchema = z
   .object({
     name: z
       .string()
-      .min(5, 'Full name must be at least 5 characters')
-      .max(32, 'Full name must be at most 32 characters'),
+      .min(5, 'Username must be at least 5 characters')
+      .max(32, 'Username must be at most 32 characters'),
     email: z.email(),
     password: z
       .string()
@@ -32,11 +45,11 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const [formState, setFormState] = useState<
-    'default' | 'loading' | 'error' | 'success'
-  >('default')
+  const [formState, setFormState] = useState<FormState>('default')
 
-    const [formError, setFormError] = useState<null | string>(null)
+  const [formError, setFormError] = useState<null | string>(null)
+
+  const navigate = useNavigate()
 
   const form = useForm({
     defaultValues: {
@@ -62,30 +75,29 @@ export function SignupForm({
     email: string
     password: string
   }) {
-      authClient.signUp.email(
-        {
-          email, // user email address
-          password, // user password -> min 8 characters by default
-          name, // user display name
-          callbackURL: '/profile', // A URL to redirect to after the user verifies their email (optional)
+    authClient.signUp.email(
+      {
+        email, // user email address
+        password, // user password -> min 8 characters by default
+        name, // user display name
+        callbackURL: '/profile', // A URL to redirect to after the user verifies their email (optional)
+      },
+      {
+        onRequest: () => {
+          setFormState('loading')
         },
-        {
-          onRequest: () => {
-            setFormState('loading')
-          },
-          onSuccess: () => {
-            setFormError(null);
-            setFormState('success')
-            throw redirect({ to: '/profile' })
-          },
-          onError: (ctx) => {
-              setFormState('error');
-              setFormError(ctx.error.message);
-
-          },
+        onSuccess: () => {
+          setFormError(null)
+          setFormState('success')
+          navigate({to: '/profile'})
         },
-      )
-    }
+        onError: (ctx) => {
+          setFormState('error')
+          setFormError(ctx.error.message)
+        },
+      },
+    )
+  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -111,7 +123,7 @@ export function SignupForm({
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
                     <Field>
-                      <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>Username</FieldLabel>
                       <Input
                         id={field.name}
                         name={field.name}
@@ -225,7 +237,7 @@ export function SignupForm({
                 </span>
               )}
               <Field>
-                <Button type="submit" disabled={formState === 'loading'}>
+                <Button type="submit">
                   {formState === 'loading' ? <Spinner /> : 'Create Account'}
                 </Button>
                 <FieldDescription className="text-center">

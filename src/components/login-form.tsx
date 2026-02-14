@@ -16,12 +16,13 @@ import {
   FieldSeparator,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Link, redirect } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useForm } from '@tanstack/react-form-start'
 import z from 'zod'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import { authClient } from '@/lib/auth-client.ts'
+import { FormState } from '@/types/formState.ts'
 
 const loginSchema = z.object({
   email: z.email(),
@@ -35,11 +36,11 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const [formState, setFormState] = useState<
-    'default' | 'loading' | 'error' | 'success'
-  >('default')
+  const [formState, setFormState] = useState<FormState>('default')
 
   const [formError, setFormError] = useState<null | string>(null)
+
+  const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
@@ -74,7 +75,7 @@ export function LoginForm({
         onSuccess: () => {
           setFormError(null)
           setFormState('success')
-          throw redirect({ to: '/profile' })
+          navigate({to: '/profile'})
         },
         onError: (ctx) => {
           setFormState('error')
@@ -192,7 +193,7 @@ export function LoginForm({
                 </span>
               )}
               <Field>
-                <Button type="submit" disabled={formState === 'loading'}>
+                <Button type="submit">
                   {formState === 'loading' ? <Spinner /> : 'Log In'}
                 </Button>
                 <FieldDescription className="text-center">
