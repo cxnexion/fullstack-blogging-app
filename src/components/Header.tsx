@@ -25,12 +25,12 @@ const Header = () => {
         </Link>
       </div>
       <div className="gap-4 hidden lg:flex">
-        <a
-          href=""
+        <Link
+          to="/write"
           className="content-center hover:decoration-foreground underline decoration-transparent transition"
         >
           Write
-        </a>
+        </Link>
         <a
           href=""
           className="content-center hover:decoration-foreground underline decoration-transparent transition"

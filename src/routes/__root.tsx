@@ -1,4 +1,8 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRouteWithContext,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
@@ -6,11 +10,15 @@ import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
 import Footer from "@/components/Footer.tsx";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 import { getThemeServerFn } from '@/lib/theme.ts'
 import { ThemeProvider } from '@/components/theme-provider.tsx'
 
-export const Route = createRootRoute({
+interface MyRouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
       {
@@ -37,20 +45,17 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const theme = Route.useLoaderData()
-
-
-  const queryClient = new QueryClient()
   return (
     <html lang="en" className={theme} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <QueryClientProvider client={queryClient}>
+
         <ThemeProvider theme={theme}>
           <body className="flex flex-col min-h-screen">
             <Header />
 
-            <main className="grow">{children}</main>
+            <main className="grow flex">{children}</main>
             <Footer />
             <TanStackDevtools
               config={{
@@ -66,7 +71,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <Scripts />
           </body>
         </ThemeProvider>
-      </QueryClientProvider>
     </html>
   )
 }

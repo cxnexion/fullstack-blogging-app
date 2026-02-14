@@ -47,17 +47,9 @@ const profileSchema = z.object({
   image: z.string(),
 })
 
-const importantSchema = z.object({
-  name: z
-    .string()
-    .min(5, 'Full name must be at least 5 characters')
-    .max(32, 'Full name must be at most 32 characters'),
-})
-
 function RouteComponent() {
-  const { data: session, isPending } = authClient.useSession()
   return (
-    <div className="wrapper m-2">
+    <div className="wrapper w-full m-2">
       <div className="flex flex-col gap-6 w-sm">
         <Tabs defaultValue="profile">
           <TabsList variant="line">
@@ -198,15 +190,16 @@ const ProfileTab = () => {
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
-                    {formState === 'success' && (
-                      <span className="text-primary font-semibold">
-                        Successfully updated.
-                      </span>
-                    )}
                   </Field>
                 )
               }}
             />
+            {formState === 'success' && (
+              <span className="text-primary font-semibold">
+                Successfully updated.
+              </span>
+            )}
+            {formError && <FieldError>{formError}</FieldError>}
             <Field>
               <Button type="submit" disabled={formState === 'loading'}>
                 {formState === 'loading' ? <Spinner /> : 'Update Profile'}
