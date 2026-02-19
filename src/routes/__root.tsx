@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { getThemeServerFn } from '@/lib/theme.ts'
 import { ThemeProvider } from '@/components/theme-provider.tsx'
 import * as React from 'react'
+import {Toaster} from '@/components/ui/sonner.tsx'
 
 export const Route = createRootRoute(({
   head: () => ({
@@ -65,6 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <Header />
             <QueryClientProvider client={queryClient}>
             <main className="grow flex">{children}</main>
+              <Toaster/>
             </QueryClientProvider>
             <Footer />
             <TanStackDevtools

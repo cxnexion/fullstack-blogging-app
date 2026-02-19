@@ -18,7 +18,7 @@ const Header = () => {
   } = authClient.useSession();
 
   return (
-    <header className="flex items-center justify-between p-2 border-b sticky top-0">
+    <header className="flex items-center justify-between p-2 border-b sticky top-0 z-50 bg-background">
       <div className="flex sm:flex-1">
         <Link to="/" className="text-2xl">
           Blogg<span className="text-primary">Ing</span>
