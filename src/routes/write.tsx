@@ -7,7 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty.tsx'
-import { Check, EllipsisVertical, PencilLine, Trash, X } from 'lucide-react'
+import { Check, EllipsisVertical, Eye, EyeOff, PencilLine, Trash, X } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import {
   Card,
@@ -51,11 +51,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog.tsx'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, not } from 'drizzle-orm'
 import { Label } from '@/components/ui/label.tsx'
 import { FormState } from '@/types/formState.ts'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import { toast } from 'sonner'
+import {Badge} from '@/components/ui/badge.tsx'
 
 const changeArticleSchema = z.object({
   heading: z
@@ -79,6 +80,10 @@ const createArticleSchema = z.object({
 })
 
 const deleteArticleSchema = z.object({
+  id: z.string(),
+})
+
+const toggleArticleVisibilitySchema = z.object({
   id: z.string(),
 })
 
@@ -170,6 +175,30 @@ const removeArticle = createServerFn({ method: 'POST' })
     }
   })
 
+const toggleArticleVisibility = createServerFn({ method: 'POST' })
+  .inputValidator(toggleArticleVisibilitySchema)
+  .handler(async ({ data }) => {
+    const headers = getRequestHeaders()
+    const session = await auth.api.getSession({ headers })
+
+    if (!session?.user.id) return null
+
+    try {
+      await db
+        .update(article)
+        .set({
+          isPublic: not(article.isPublic)
+        })
+        .where(
+          and(eq(article.authorId, session.user.id), eq(article.id, data.id)),
+        )
+      return { success: true }
+    } catch (e) {
+      return { success: false }
+    }
+  })
+
+
 export const Route = createFileRoute('/write')({
   component: RouteComponent,
   loader: async () => await getArticles(),
@@ -249,15 +278,18 @@ const ArticleCard = ({
   img,
   description,
   id,
+    isPublic
 }: {
   heading: string
   img?: string
   description?: string | null
   id: string
+    isPublic: boolean
 }) => {
   const queryClient = useQueryClient()
   const [isRenaming, setIsRenaming] = useState(false)
   const [isRemoving, setIsRemoving] = useState(false)
+    const [isToggling, setIsToggling] = useState(false)
   const renameArticleFn = useServerFn(renameArticle)
   const removeArticleFn = useServerFn(removeArticle)
   const articleRenameMutation = useMutation({
@@ -275,20 +307,34 @@ const ArticleCard = ({
       setIsRenaming(false)
     },
   })
-  const articleRemoveMutation = useMutation({
-    mutationFn: ({ id }: { id: string }) => removeArticleFn({ data: { id } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['articles'] })
-      setIsRemoving(false)
-    },
-    onMutate: () => {
-      setIsRemoving(true)
-    },
-    onError: () => {
-      setIsRemoving(false)
-      toast.error('Article was not removed')
-    },
-  })
+    const articleRemoveMutation = useMutation({
+      mutationFn: ({ id }: { id: string }) => removeArticleFn({ data: { id } }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['articles'] })
+        setIsRemoving(false)
+      },
+      onMutate: () => {
+        setIsRemoving(true)
+      },
+      onError: () => {
+        setIsRemoving(false)
+        toast.error('Article was not removed', { position: 'bottom-right' })
+      },
+    })
+    const articleToggleVisibilityMutation = useMutation({
+        mutationFn: ({ id }: { id: string }) => toggleArticleVisibility({ data: { id } }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['articles'] })
+            setIsToggling(false)
+        },
+        onMutate: () => {
+            setIsToggling(true)
+        },
+        onError: () => {
+            setIsToggling(false)
+            toast.error('Article visibility was not changed', {position: 'bottom-right'})
+        },
+    })
 
   const form = useForm({
     defaultValues: {
@@ -387,7 +433,10 @@ const ArticleCard = ({
             <PencilLine />
             Edit
           </Button>
-
+          <Badge variant={isPublic ? 'default' : 'outline'}>
+              {isToggling ? <Spinner/> : isPublic ? <Eye/> : <EyeOff/>}
+              {isPublic ? 'Public' : 'Private'}
+          </Badge>
           {isRenaming ? (
             <ButtonGroup>
               <Button
@@ -412,10 +461,18 @@ const ArticleCard = ({
                   <EllipsisVertical />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent className="w-auto">
                 <DropdownMenuItem onClick={() => setIsRenaming(true)}>
                   <PencilLine />
                   Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="default"
+                  disabled={isToggling}
+                  onClick={() => articleToggleVisibilityMutation.mutate({ id })}
+                >
+                    {isPublic ? <Eye/> : <EyeOff/>}
+                  Change visibility{isToggling && <Spinner />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   variant="destructive"
@@ -423,7 +480,7 @@ const ArticleCard = ({
                   onClick={() => articleRemoveMutation.mutate({ id })}
                 >
                   <Trash />
-                  Delete
+                  Delete{isRemoving && <Spinner />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
