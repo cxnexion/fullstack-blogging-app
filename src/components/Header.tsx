@@ -66,7 +66,7 @@ const Header = () => {
                 isPending ? 'secondary' : session?.user ? 'outline' : 'default'
               }
             >
-              {isPending ? <Spinner /> : session?.user ? <Avatar><AvatarImage src={session.user.image ?? undefined}/><AvatarFallback>{session.user.name}</AvatarFallback></Avatar> : 'Sign Up'}
+              {isPending ? <Spinner /> : session?.user ? <Avatar><AvatarImage src={session.user.image ?? undefined}/><AvatarFallback className="truncate">{session.user.name}</AvatarFallback></Avatar> : 'Sign Up'}
             </Button>
           }
         </Link>

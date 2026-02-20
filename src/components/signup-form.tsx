@@ -110,9 +110,9 @@ export function SignupForm({
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={(e) => {
+            onSubmit={async(e) => {
               e.preventDefault()
-              form.handleSubmit(e)
+            await  form.handleSubmit(e)
             }}
           >
             <FieldGroup>

@@ -65,7 +65,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <body className="flex flex-col min-h-screen">
             <Header />
             <QueryClientProvider client={queryClient}>
-            <main className="grow flex">{children}</main>
+            <main className="grow flex justify-center">{children}</main>
               <Toaster/>
             </QueryClientProvider>
             <Footer />

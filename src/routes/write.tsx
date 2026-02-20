@@ -57,6 +57,7 @@ import { FormState } from '@/types/formState.ts'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import { toast } from 'sonner'
 import {Badge} from '@/components/ui/badge.tsx'
+import { authMiddleware } from '@/middleware/auth.ts'
 
 const changeArticleSchema = z.object({
   heading: z
@@ -200,6 +201,9 @@ const toggleArticleVisibility = createServerFn({ method: 'POST' })
 
 
 export const Route = createFileRoute('/write')({
+  server: {
+    middleware: [authMiddleware]
+  },
   component: RouteComponent,
   loader: async () => await getArticles(),
 })
@@ -216,7 +220,7 @@ function RouteComponent() {
   if (isPending || !data)
     return (
       <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4 m-2">
-        {Array(10)
+        {Array(8)
           .fill(null)
           .map((_, index) => (
             <ArticleSkeleton key={index} />
@@ -302,15 +306,15 @@ const ArticleCard = ({
       heading: string
       description: string
     }) => renameArticleFn({ data: { id, heading, description } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['articles'] })
+    onSuccess: async () => {
+     await queryClient.invalidateQueries({ queryKey: ['articles'] })
       setIsRenaming(false)
     },
   })
     const articleRemoveMutation = useMutation({
       mutationFn: ({ id }: { id: string }) => removeArticleFn({ data: { id } }),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['articles'] })
+      onSuccess:async () => {
+          await queryClient.invalidateQueries({ queryKey: ['articles'] })
         setIsRemoving(false)
       },
       onMutate: () => {
@@ -323,8 +327,8 @@ const ArticleCard = ({
     })
     const articleToggleVisibilityMutation = useMutation({
         mutationFn: ({ id }: { id: string }) => toggleArticleVisibility({ data: { id } }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['articles'] })
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['articles'] })
             setIsToggling(false)
         },
         onMutate: () => {
@@ -350,9 +354,9 @@ const ArticleCard = ({
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault()
-        form.handleSubmit()
+      await  form.handleSubmit()
       }}
     >
       <Card className="w-full pt-0 h-full max-h-106">
@@ -525,8 +529,8 @@ const ArticleCreationDialogContent = ({ openFn }: { openFn: Function }) => {
       heading: string
       description: string
     }) => createArticleFn({ data: { heading, description } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['articles'] })
+    onSuccess:async () => {
+      await queryClient.invalidateQueries({ queryKey: ['articles'] })
       setFormState('success')
       openFn((o: boolean) => !o)
     },
@@ -557,9 +561,9 @@ const ArticleCreationDialogContent = ({ openFn }: { openFn: Function }) => {
         <DialogDescription>Let's create new article</DialogDescription>
       </DialogHeader>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault()
-          form.handleSubmit(e)
+          await form.handleSubmit(e)
         }}
       >
         <FieldGroup>

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Card,
   CardContent,
@@ -82,7 +82,7 @@ const ProfileTab = () => {
       onSubmit: profileSchema,
     },
     onSubmit: async ({ value }) => {
-      handleProfile(value)
+     await handleProfile(value)
     },
   })
 
@@ -131,9 +131,9 @@ const ProfileTab = () => {
       </CardHeader>
       <CardContent>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault()
-            form.handleSubmit(e)
+           await form.handleSubmit(e)
           }}
         >
           <FieldGroup>
@@ -213,21 +213,20 @@ const ProfileTab = () => {
 }
 
 const ImportantTab = () => {
-
   const { data: session, isPending } = authClient.useSession()
+  const navigate = useNavigate()
 
   const [emailState, setEmailState] = useState<FormState>('default')
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null)
 
   const [passwordState, setPasswordState] = useState<FormState>('default')
   const [passwordError, setPasswordError] = useState<string | null>(null)
 
-
   async function handleEmail(e: React.FormEvent<HTMLFormElement>) {
-    const formData = new FormData(e.currentTarget);
-    const newEmail = formData.get('email');
+    const formData = new FormData(e.currentTarget)
+    const newEmail = formData.get('email')
 
-    if  (typeof newEmail !== 'string') return;
+    if (typeof newEmail !== 'string') return
 
     await authClient.changeEmail(
       {
@@ -251,12 +250,11 @@ const ImportantTab = () => {
   }
 
   async function handlePassword() {
-
-    if (!session?.user.email) return;
+    if (!session?.user.email) return
 
     await authClient.requestPasswordReset(
       {
-        email: session?.user.email
+        email: session?.user.email,
       },
       {
         onRequest: () => {
@@ -274,7 +272,15 @@ const ImportantTab = () => {
     )
   }
 
-
+  async function handleSignOut() {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          navigate({to: '/'})
+        }
+      }
+    })
+  }
 
   return (
     <Card>
@@ -285,15 +291,15 @@ const ImportantTab = () => {
       <CardContent>
         <FieldGroup>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
-              handleEmail(e)
+             await handleEmail(e)
             }}
           >
             <Field>
-              <FieldLabel>Email</FieldLabel>
+              <FieldLabel>Change email</FieldLabel>
               <ButtonGroup>
-                <Input name="email" type="email" required />
+                <Input name="email" type="email" placeholder="new@example.com" required />
                 <Button variant="outline" type="submit">
                   {emailState === 'loading' ? <Spinner /> : 'Send Email'}
                 </Button>
@@ -308,9 +314,11 @@ const ImportantTab = () => {
               disabled={isPending}
               variant="outline"
             >
-              {passwordState === 'loading' ? <Spinner/> : 'Send email'}
+              {passwordState === 'loading' ? <Spinner /> : 'Send email'}
             </Button>
             {passwordError && <FieldError>{passwordError}</FieldError>}
+            <FieldLabel>Sign out</FieldLabel>
+            <Button onClick={handleSignOut} variant="outline">Sign Out</Button>
           </Field>
         </FieldGroup>
       </CardContent>

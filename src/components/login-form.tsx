@@ -72,10 +72,10 @@ export function LoginForm({
         onRequest: () => {
           setFormState('loading')
         },
-        onSuccess: () => {
+        onSuccess:async () => {
           setFormError(null)
           setFormState('success')
-          navigate({to: '/profile'})
+        await  navigate({to: '/profile'})
         },
         onError: (ctx) => {
           setFormState('error')
@@ -96,9 +96,9 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
-              form.handleSubmit(e)
+            await  form.handleSubmit(e)
             }}
           >
             <FieldGroup>

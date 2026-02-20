@@ -6,5 +6,5 @@ export const Route = createFileRoute('/auth/login')({
 })
 
 function RouteComponent() {
-  return <div className="wrapper m-2"><LoginForm className="max-w-sm"/></div>
+  return <LoginForm className="max-w-sm m-2"/>
 }
