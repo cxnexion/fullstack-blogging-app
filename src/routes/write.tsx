@@ -96,7 +96,7 @@ const toggleArticleVisibilitySchema = z.object({
   id: z.string(),
 })
 
-const getArticles = createServerFn({ method: 'POST' }).handler(async () => {
+const getArticles = createServerFn({ method: 'GET' }).handler(async () => {
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
 
