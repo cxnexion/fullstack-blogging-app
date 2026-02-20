@@ -4,7 +4,7 @@ import {useCreateBlockNote} from '@blocknote/react'
 import {Spinner} from '@/components/ui/spinner.tsx'
 import '@blocknote/shadcn/style.css'
 
-export const Route = createFileRoute('/article/$')({
+export const Route = createFileRoute('/article/edit/$articleId')({
   component: RouteComponent,
 })
 

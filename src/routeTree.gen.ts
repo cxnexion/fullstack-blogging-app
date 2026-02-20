@@ -14,8 +14,9 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as ArticleSplatRouteImport } from './routes/article/$'
+import { Route as ArticleArticleIdRouteImport } from './routes/article/$articleId'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as ArticleEditArticleIdRouteImport } from './routes/article/edit.$articleId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const WriteRoute = WriteRouteImport.update({
@@ -43,14 +44,19 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ArticleSplatRoute = ArticleSplatRouteImport.update({
-  id: '/article/$',
-  path: '/article/$',
+const ArticleArticleIdRoute = ArticleArticleIdRouteImport.update({
+  id: '/article/$articleId',
+  path: '/article/$articleId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArticleEditArticleIdRoute = ArticleEditArticleIdRouteImport.update({
+  id: '/article/edit/$articleId',
+  path: '/article/edit/$articleId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -64,20 +70,22 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/write': typeof WriteRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
-  '/article/$': typeof ArticleSplatRoute
+  '/article/$articleId': typeof ArticleArticleIdRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/article/edit/$articleId': typeof ArticleEditArticleIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/profile': typeof ProfileRoute
   '/write': typeof WriteRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
-  '/article/$': typeof ArticleSplatRoute
+  '/article/$articleId': typeof ArticleArticleIdRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/article/edit/$articleId': typeof ArticleEditArticleIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,10 +93,11 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/write': typeof WriteRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
-  '/article/$': typeof ArticleSplatRoute
+  '/article/$articleId': typeof ArticleArticleIdRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/article/edit/$articleId': typeof ArticleEditArticleIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,30 +106,33 @@ export interface FileRouteTypes {
     | '/profile'
     | '/write'
     | '/api/uploadthing'
-    | '/article/$'
+    | '/article/$articleId'
     | '/auth/login'
     | '/auth/register'
     | '/api/auth/$'
+    | '/article/edit/$articleId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/profile'
     | '/write'
     | '/api/uploadthing'
-    | '/article/$'
+    | '/article/$articleId'
     | '/auth/login'
     | '/auth/register'
     | '/api/auth/$'
+    | '/article/edit/$articleId'
   id:
     | '__root__'
     | '/'
     | '/profile'
     | '/write'
     | '/api/uploadthing'
-    | '/article/$'
+    | '/article/$articleId'
     | '/auth/login'
     | '/auth/register'
     | '/api/auth/$'
+    | '/article/edit/$articleId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,10 +140,11 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   WriteRoute: typeof WriteRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
-  ArticleSplatRoute: typeof ArticleSplatRoute
+  ArticleArticleIdRoute: typeof ArticleArticleIdRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ArticleEditArticleIdRoute: typeof ArticleEditArticleIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -171,11 +184,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/article/$': {
-      id: '/article/$'
-      path: '/article/$'
-      fullPath: '/article/$'
-      preLoaderRoute: typeof ArticleSplatRouteImport
+    '/article/$articleId': {
+      id: '/article/$articleId'
+      path: '/article/$articleId'
+      fullPath: '/article/$articleId'
+      preLoaderRoute: typeof ArticleArticleIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/uploadthing': {
@@ -183,6 +196,13 @@ declare module '@tanstack/react-router' {
       path: '/api/uploadthing'
       fullPath: '/api/uploadthing'
       preLoaderRoute: typeof ApiUploadthingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/article/edit/$articleId': {
+      id: '/article/edit/$articleId'
+      path: '/article/edit/$articleId'
+      fullPath: '/article/edit/$articleId'
+      preLoaderRoute: typeof ArticleEditArticleIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -200,10 +220,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   WriteRoute: WriteRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
-  ArticleSplatRoute: ArticleSplatRoute,
+  ArticleArticleIdRoute: ArticleArticleIdRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ArticleEditArticleIdRoute: ArticleEditArticleIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

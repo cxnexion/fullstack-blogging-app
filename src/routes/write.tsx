@@ -1,4 +1,4 @@
-import { createFileRoute, useLoaderData } from '@tanstack/react-router'
+import { createFileRoute, Link, useLoaderData } from '@tanstack/react-router'
 import {
   Empty,
   EmptyContent,
@@ -7,7 +7,15 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty.tsx'
-import { Check, EllipsisVertical, Eye, EyeOff, PencilLine, Trash, X } from 'lucide-react'
+import {
+  Check,
+  EllipsisVertical,
+  Eye,
+  EyeOff,
+  PencilLine,
+  Trash,
+  X,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import {
   Card,
@@ -56,7 +64,7 @@ import { Label } from '@/components/ui/label.tsx'
 import { FormState } from '@/types/formState.ts'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import { toast } from 'sonner'
-import {Badge} from '@/components/ui/badge.tsx'
+import { Badge } from '@/components/ui/badge.tsx'
 import { authMiddleware } from '@/middleware/auth.ts'
 
 const changeArticleSchema = z.object({
@@ -188,7 +196,7 @@ const toggleArticleVisibility = createServerFn({ method: 'POST' })
       await db
         .update(article)
         .set({
-          isPublic: not(article.isPublic)
+          isPublic: not(article.isPublic),
         })
         .where(
           and(eq(article.authorId, session.user.id), eq(article.id, data.id)),
@@ -199,10 +207,9 @@ const toggleArticleVisibility = createServerFn({ method: 'POST' })
     }
   })
 
-
 export const Route = createFileRoute('/write')({
   server: {
-    middleware: [authMiddleware]
+    middleware: [authMiddleware],
   },
   component: RouteComponent,
   loader: async () => await getArticles(),
@@ -282,18 +289,19 @@ const ArticleCard = ({
   img,
   description,
   id,
-    isPublic
+  isPublic,
 }: {
   heading: string
   img?: string
   description?: string | null
   id: string
-    isPublic: boolean
+  isPublic: boolean
 }) => {
   const queryClient = useQueryClient()
   const [isRenaming, setIsRenaming] = useState(false)
   const [isRemoving, setIsRemoving] = useState(false)
-    const [isToggling, setIsToggling] = useState(false)
+  const [isToggling, setIsToggling] = useState(false)
+  const [isRenamePending, setIsRenamePending] = useState(false)
   const renameArticleFn = useServerFn(renameArticle)
   const removeArticleFn = useServerFn(removeArticle)
   const articleRenameMutation = useMutation({
@@ -307,38 +315,49 @@ const ArticleCard = ({
       description: string
     }) => renameArticleFn({ data: { id, heading, description } }),
     onSuccess: async () => {
-     await queryClient.invalidateQueries({ queryKey: ['articles'] })
+      await queryClient.invalidateQueries({ queryKey: ['articles'] })
       setIsRenaming(false)
+      setIsRenamePending(false)
+    },
+    onMutate: () => {
+  setIsRenamePending(true)
+    }
+    , onError: () => {
+      toast('Article was not renamed', {position: 'bottom-right'})
+      setIsRenamePending(false)
+    }
+  })
+  const articleRemoveMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => removeArticleFn({ data: { id } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['articles'] })
+      setIsRemoving(false)
+    },
+    onMutate: () => {
+      setIsRemoving(true)
+    },
+    onError: () => {
+      setIsRemoving(false)
+      toast.error('Article was not removed', { position: 'bottom-right' })
     },
   })
-    const articleRemoveMutation = useMutation({
-      mutationFn: ({ id }: { id: string }) => removeArticleFn({ data: { id } }),
-      onSuccess:async () => {
-          await queryClient.invalidateQueries({ queryKey: ['articles'] })
-        setIsRemoving(false)
-      },
-      onMutate: () => {
-        setIsRemoving(true)
-      },
-      onError: () => {
-        setIsRemoving(false)
-        toast.error('Article was not removed', { position: 'bottom-right' })
-      },
-    })
-    const articleToggleVisibilityMutation = useMutation({
-        mutationFn: ({ id }: { id: string }) => toggleArticleVisibility({ data: { id } }),
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['articles'] })
-            setIsToggling(false)
-        },
-        onMutate: () => {
-            setIsToggling(true)
-        },
-        onError: () => {
-            setIsToggling(false)
-            toast.error('Article visibility was not changed', {position: 'bottom-right'})
-        },
-    })
+  const articleToggleVisibilityMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) =>
+      toggleArticleVisibility({ data: { id } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['articles'] })
+      setIsToggling(false)
+    },
+    onMutate: () => {
+      setIsToggling(true)
+    },
+    onError: () => {
+      setIsToggling(false)
+      toast.error('Article visibility was not changed', {
+        position: 'bottom-right',
+      })
+    },
+  })
 
   const form = useForm({
     defaultValues: {
@@ -356,7 +375,7 @@ const ArticleCard = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault()
-      await  form.handleSubmit()
+        await form.handleSubmit()
       }}
     >
       <Card className="w-full pt-0 h-full max-h-106">
@@ -433,13 +452,15 @@ const ArticleCard = ({
           )}
         </CardHeader>
         <CardFooter className="justify-between">
-          <Button variant="outline">
-            <PencilLine />
-            Edit
-          </Button>
+          <Link to="/article/edit/$articleId" params={{ articleId: id }}>
+            <Button variant="outline">
+              <PencilLine />
+              Edit
+            </Button>
+          </Link>
           <Badge variant={isPublic ? 'default' : 'outline'}>
-              {isToggling ? <Spinner/> : isPublic ? <Eye/> : <EyeOff/>}
-              {isPublic ? 'Public' : 'Private'}
+            {isToggling ? <Spinner /> : isPublic ? <Eye /> : <EyeOff />}
+            {isPublic ? 'Public' : 'Private'}
           </Badge>
           {isRenaming ? (
             <ButtonGroup>
@@ -454,8 +475,8 @@ const ArticleCard = ({
               >
                 <X />
               </Button>
-              <Button variant="default" size="icon" type="submit">
-                <Check />
+              <Button variant="default" size="icon" type="submit" disabled={isRenamePending}>
+                {isRenamePending ? <Spinner/> :<Check />}
               </Button>
             </ButtonGroup>
           ) : (
@@ -475,7 +496,7 @@ const ArticleCard = ({
                   disabled={isToggling}
                   onClick={() => articleToggleVisibilityMutation.mutate({ id })}
                 >
-                    {isPublic ? <Eye/> : <EyeOff/>}
+                  {isPublic ? <Eye /> : <EyeOff />}
                   Change visibility{isToggling && <Spinner />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -529,7 +550,7 @@ const ArticleCreationDialogContent = ({ openFn }: { openFn: Function }) => {
       heading: string
       description: string
     }) => createArticleFn({ data: { heading, description } }),
-    onSuccess:async () => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['articles'] })
       setFormState('success')
       openFn((o: boolean) => !o)
