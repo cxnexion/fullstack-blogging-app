@@ -58,10 +58,14 @@ const setArticleBody = createServerFn()
       throw new Error('Access restricted')
     }
 
+    const image =
+      data.body.find((block: any) => block.type === 'image')?.props
+        ?.url ?? null
+
     try {
       await db
         .update(article)
-        .set({ body: data.body })
+        .set({ body: data.body, image })
         .where(
           and(eq(article.authorId, session.user.id), eq(article.id, data.id)),
         )

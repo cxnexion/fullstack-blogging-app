@@ -1,29 +1,8 @@
 import { createFileRoute, Link, useLoaderData } from '@tanstack/react-router'
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty.tsx'
-import {
-  Check,
-  EllipsisVertical,
-  Eye,
-  EyeOff,
-  PencilLine,
-  Trash,
-  X,
-} from 'lucide-react'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle, } from '@/components/ui/empty.tsx'
+import { Check, EllipsisVertical, Eye, EyeOff, PencilLine, Trash, X, } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card.tsx'
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle, } from '@/components/ui/card.tsx'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,12 +16,7 @@ import { Input } from '@/components/ui/input.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
 import { useForm } from '@tanstack/react-form-start'
 import z from 'zod'
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-} from '@/components/ui/field.tsx'
+import { Field, FieldDescription, FieldError, FieldGroup, } from '@/components/ui/field.tsx'
 import { ButtonGroup } from '@/components/ui/button-group.tsx'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
 import { getRequestHeaders } from '@tanstack/react-start/server'
@@ -102,7 +76,7 @@ const getArticles = createServerFn({ method: 'GET' }).handler(async () => {
 
   if (!session?.user.id) return null
 
-  const articles = await db.query.user
+  return await db.query.user
     .findFirst({
       where: (user, { eq }) => eq(user.id, session.user.id),
       with: {
@@ -110,12 +84,6 @@ const getArticles = createServerFn({ method: 'GET' }).handler(async () => {
       },
     })
     .then((user) => user?.articles ?? [])
-
-  return articles.map((article) => ({
-    ...article,
-    img:
-      article.body?.find((block) => block.type === 'image')?.props?.url ?? null,
-  }))
 })
 
 const createArticle = createServerFn({ method: 'POST' })
@@ -251,7 +219,7 @@ function RouteComponent() {
             <EmptyContent>
               <Dialog
                 open={isDialogOpen}
-                onOpenChange={() => setIsDialogOpen(true)}
+                onOpenChange={setIsDialogOpen}
               >
                 <DialogTrigger asChild onClick={() => setIsDialogOpen(true)}>
                   <Button variant="default">Write</Button>
@@ -286,13 +254,13 @@ function RouteComponent() {
 
 const ArticleCard = ({
   heading,
-  img,
+  image,
   description,
   id,
   isPublic,
 }: {
   heading: string
-  img?: string
+  image: string | null
   description?: string | null
   id: string
   isPublic: boolean
@@ -304,6 +272,7 @@ const ArticleCard = ({
   const [isRenamePending, setIsRenamePending] = useState(false)
   const renameArticleFn = useServerFn(renameArticle)
   const removeArticleFn = useServerFn(removeArticle)
+  const toggleArticleVisibilityFn = useServerFn(toggleArticleVisibility)
   const articleRenameMutation = useMutation({
     mutationFn: ({
       id,
@@ -343,7 +312,7 @@ const ArticleCard = ({
   })
   const articleToggleVisibilityMutation = useMutation({
     mutationFn: ({ id }: { id: string }) =>
-      toggleArticleVisibility({ data: { id } }),
+      toggleArticleVisibilityFn({ data: { id } }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['articles'] })
       setIsToggling(false)
@@ -379,9 +348,9 @@ const ArticleCard = ({
       }}
     >
       <Card className="w-full pt-0 h-full max-h-106">
-        {img ? (
+        {image ? (
           <img
-            src={img}
+            src={image}
             className="relative z-10 aspect-video w-full object-cover"
             alt={heading}
           />
