@@ -25,7 +25,7 @@ export const uploadRouter = {
 
 export type UploadRouter = typeof uploadRouter
 
-export const { useUploadThing } = generateReactHelpers<UploadRouter>()
+export const { useUploadThing, uploadFiles } = generateReactHelpers<UploadRouter>()
 
 export const UploadDropzone = generateUploadDropzone<UploadRouter>()
 export const UploadButton = generateUploadButton<UploadRouter>()
