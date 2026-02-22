@@ -21,7 +21,8 @@ export const article = pgTable('article', {
   isPublic: boolean('is_public').default(true).notNull(),
   heading: varchar('heading', { length: 64 }).notNull(),
   description: varchar('description', { length: 256 }),
-  image: text('image')
+  image: text('image'),
+  bodyHtml: text('body_html')
 })
 
 export const articleRelations = relations(article, ({one}) => ({

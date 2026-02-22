@@ -16,6 +16,7 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge.tsx'
 import { Check, CircleAlert } from 'lucide-react'
 import { uploadFiles } from '@/server/uploadthing.ts'
+import { ServerBlockNoteEditor } from '@blocknote/server-util'
 
 const getArticleSchema = z.object({
   id: z.string(),
@@ -51,6 +52,7 @@ const getArticle = createServerFn()
 const setArticleBody = createServerFn()
   .inputValidator(setArticleBodySchema)
   .handler(async ({ data }) => {
+    const editor = ServerBlockNoteEditor.create()
     const headers = getRequestHeaders()
     const session = await auth.api.getSession({ headers })
 
@@ -59,13 +61,14 @@ const setArticleBody = createServerFn()
     }
 
     const image =
-      data.body.find((block: any) => block.type === 'image')?.props
-        ?.url ?? null
+      data.body.find((block: any) => block.type === 'image')?.props?.url ?? null
+
+    const bodyHtml = await editor.blocksToFullHTML(data.body)
 
     try {
       await db
         .update(article)
-        .set({ body: data.body, image })
+        .set({ body: data.body, image, bodyHtml })
         .where(
           and(eq(article.authorId, session.user.id), eq(article.id, data.id)),
         )
@@ -116,7 +119,18 @@ function RouteComponent() {
       }
     >
       <BlockNoteEditor initialContent={body} onChange={articleBodyHandler} />
-      <Badge className="fixed right-4 top-1/12" variant={saveStatus === 'typing' ? 'secondary' : saveStatus === 'saving' ? 'outline' : saveStatus === 'error' ? 'destructive' : 'default'}>
+      <Badge
+        className="fixed right-4 top-1/12"
+        variant={
+          saveStatus === 'typing'
+            ? 'secondary'
+            : saveStatus === 'saving'
+              ? 'outline'
+              : saveStatus === 'error'
+                ? 'destructive'
+                : 'default'
+        }
+      >
         {saveStatus === 'typing' ? (
           <>
             <Spinner /> Typing
@@ -151,8 +165,8 @@ const BlockNoteEditor = ({
       Array.isArray(initialContent) && initialContent.length > 0
         ? initialContent
         : undefined,
-    uploadFile:async (img) => {
-     return (await uploadFiles('imageUploader', { files: [img] }))[0].ufsUrl
+    uploadFile: async (img) => {
+      return (await uploadFiles('imageUploader', { files: [img] }))[0].ufsUrl
     },
   })
 
