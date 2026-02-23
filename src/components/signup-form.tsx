@@ -89,7 +89,7 @@ export function SignupForm({
         onSuccess: () => {
           setFormError(null)
           setFormState('success')
-          navigate({to: '/profile'})
+          navigate({to: '/'})
         },
         onError: (ctx) => {
           setFormState('error')
