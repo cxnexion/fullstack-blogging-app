@@ -16,7 +16,7 @@ import { ThemeProvider } from '@/components/theme-provider.tsx'
 import * as React from 'react'
 import {Toaster} from '@/components/ui/sonner.tsx'
 
-export const Route = createRootRoute(({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
@@ -27,7 +27,7 @@ export const Route = createRootRoute(({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'BloggIng',
       },
     ],
     links: [
@@ -35,11 +35,29 @@ export const Route = createRootRoute(({
         rel: 'stylesheet',
         href: appCss,
       },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/16.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/32.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '64x64',
+        href: '/64.png',
+      },
     ],
   }),
   loader: () => getThemeServerFn(),
   shellComponent: RootDocument,
-}))
+})
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(

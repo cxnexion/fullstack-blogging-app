@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WriteRouteImport } from './routes/write'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as ArticleArticleIdRouteImport } from './routes/article/$articleId'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as ArticleEditArticleIdRouteImport } from './routes/article/edit.$articleId'
@@ -34,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -42,6 +49,11 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticleArticleIdRoute = ArticleArticleIdRouteImport.update({
@@ -71,8 +83,10 @@ export interface FileRoutesByFullPath {
   '/write': typeof WriteRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/article/$articleId': typeof ArticleArticleIdRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/article/edit/$articleId': typeof ArticleEditArticleIdRoute
 }
@@ -82,8 +96,10 @@ export interface FileRoutesByTo {
   '/write': typeof WriteRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/article/$articleId': typeof ArticleArticleIdRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/article/edit/$articleId': typeof ArticleEditArticleIdRoute
 }
@@ -94,8 +110,10 @@ export interface FileRoutesById {
   '/write': typeof WriteRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/article/$articleId': typeof ArticleArticleIdRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/article/edit/$articleId': typeof ArticleEditArticleIdRoute
 }
@@ -107,8 +125,10 @@ export interface FileRouteTypes {
     | '/write'
     | '/api/uploadthing'
     | '/article/$articleId'
+    | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/reset-password'
     | '/api/auth/$'
     | '/article/edit/$articleId'
   fileRoutesByTo: FileRoutesByTo
@@ -118,8 +138,10 @@ export interface FileRouteTypes {
     | '/write'
     | '/api/uploadthing'
     | '/article/$articleId'
+    | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/reset-password'
     | '/api/auth/$'
     | '/article/edit/$articleId'
   id:
@@ -129,8 +151,10 @@ export interface FileRouteTypes {
     | '/write'
     | '/api/uploadthing'
     | '/article/$articleId'
+    | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/reset-password'
     | '/api/auth/$'
     | '/article/edit/$articleId'
   fileRoutesById: FileRoutesById
@@ -141,8 +165,10 @@ export interface RootRouteChildren {
   WriteRoute: typeof WriteRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   ArticleArticleIdRoute: typeof ArticleArticleIdRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ArticleEditArticleIdRoute: typeof ArticleEditArticleIdRoute
 }
@@ -170,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -182,6 +215,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/login'
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/article/$articleId': {
@@ -221,8 +261,10 @@ const rootRouteChildren: RootRouteChildren = {
   WriteRoute: WriteRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   ArticleArticleIdRoute: ArticleArticleIdRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ArticleEditArticleIdRoute: ArticleEditArticleIdRoute,
 }
