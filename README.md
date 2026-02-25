@@ -4,8 +4,8 @@ Fullstack blogging app, built with:
     Better-auth,
     Drizzle-Orm,
     Shadcn-ui and many other cool libraries.
-
-    You can run this project locally or check it [live](https://fullstack-blogging-app.netlify.app/)
+    
+You can run this project locally or check it [live](https://fullstack-blogging-app.netlify.app/)
 
 ## Installation
     Define env variables: 
