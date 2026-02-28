@@ -62,7 +62,7 @@ export function SignupForm({
       onSubmit: registerSchema,
     },
     onSubmit: async ({ value }) => {
-      regHandler(value)
+      await regHandler(value)
     },
   })
 
@@ -89,7 +89,7 @@ export function SignupForm({
         onSuccess: () => {
           setFormError(null)
           setFormState('success')
-          navigate({to: '/'})
+          navigate({ to: '/' })
         },
         onError: (ctx) => {
           setFormState('error')
@@ -110,9 +110,9 @@ export function SignupForm({
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={async(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
-            await  form.handleSubmit(e)
+              await form.handleSubmit(e)
             }}
           >
             <FieldGroup>

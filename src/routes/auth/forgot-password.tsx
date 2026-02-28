@@ -35,13 +35,13 @@ function RouteComponent() {
       onSubmit: forgotPasswordSchema,
     },
     onSubmit: async ({ value }) => {
-      forgotPasswordHandler(value)
+      await forgotPasswordHandler(value)
     },
   })
 
   async function forgotPasswordHandler({ email }: { email: string }) {
     await authClient.requestPasswordReset(
-      { email, redirectTo: '/auth/reset-password'},
+      { email, redirectTo: '/auth/reset-password' },
       {
         onRequest: () => {
           setFormState('loading')
@@ -60,11 +60,13 @@ function RouteComponent() {
 
   return (
     <Card className="w-full max-w-sm m-2">
-      <form onSubmit={async (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        await form.handleSubmit(e)
-      }}>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          await form.handleSubmit(e)
+        }}
+      >
         <CardHeader>
           <CardTitle>Forgot password</CardTitle>
           <CardDescription>Request password with your email</CardDescription>
@@ -104,9 +106,9 @@ function RouteComponent() {
           {formError && <FieldError>{formError}</FieldError>}
           {formState === 'success' && (
             <span className="text-primary font-semibold">
-                 Success! Check your email.
-                </span>)
-          }
+              Success! Check your email.
+            </span>
+          )}
         </CardContent>
         <CardFooter>
           <Button type="submit" variant="default" className="w-full">
